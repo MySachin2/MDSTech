@@ -35,10 +35,11 @@
         curl_close($ch);
         return $result;
     }
-  if(isset($_POST['imei'])&&isset($_POST['main_id'])&&isset($_POST['sub_id'])&&isset($_POST['data'])&&isset($_POST['sub_name']))
+  if(isset($_POST['imei'])&&isset($_POST['main_id'])&&isset($_POST['sub_id'])&&isset($_POST['data'])&&isset($_POST['sub_name']) && isset($_POST['main_name']))
    {
          $imei=$_POST['imei'];
          $main_id=$_POST['main_id'];
+         $main_name=$_POST['main_name'];
          $sub_id=$_POST['sub_id'];
          $sub_name=$_POST['sub_name'];
          $dat=$_POST['data'];
@@ -60,6 +61,14 @@
              $sqlstring="INSERT INTO data(client_id,main_id,sub_id,sub_name,cluster_id) VALUES ('$client_id','$main_id','$sub_id','$sub_name','$cluster_id')";
              $result=mysqli_query($con,$sqlstring);
          }
+         $sqlstring="SELECT * FROM topic WHERE topic_id='$main_id'";
+         $result=mysqli_query($con,$sqlstring);
+         $num_rows = mysqli_num_rows($result);
+         if($num_rows==0)
+         {
+            $sqlstring="INSERT INTO topic(topic_id,name) VALUES ('$main_id','$main_name')";
+            mysqli_query($con,$sqlstring);
+         }
          $field=array("type"=>"Insert","main_id"=>$main_id,"sub_id"=>$sub_id,"data"=>$dat);
          $message = array("m" => json_encode($field));
          $pushStatus = sendMessageThroughGCM($data, $message);	
@@ -73,8 +82,8 @@
 <select id="imei" name="imei" form="sub_form">
 </select><br>
 <form id="sub_form" method="post">
-
 Main ID: <input type="text" name="main_id"><br>
+Topic Name <input type="text" name="main_name"><br>
 Sub ID: <input type="text" name="sub_id"><br>
 SubTopic Name: <input type="text" name="sub_name"><br>
 Data: <input type="text" name="data"><br>
